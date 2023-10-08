@@ -1,0 +1,53 @@
+name: Release
+author: 'Adam Poniatowski'
+
+description: |
+  Release... I'll think of a better description later.
+on:
+  workflow_run:
+    workflows: ["Run Tests"]
+    types:
+      - completed
+
+jobs:
+  release:
+    runs-on: docker
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - run:
+        - echo "Pushing to Github"
+        - echo "==========================SSH setup========================================="
+        - mkdir -p ~/.ssh
+        - echo "$BOT_SSH_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+        - chmod 600 ~/.ssh/id_rsa
+        - eval "$(ssh-agent -s)"
+        - ssh-add ~/.ssh/id_rsa
+        - echo "==========================GPG setup========================================="
+        - scp bot@multitool:/home/bot/private-key.asc .
+        - echo "$GPG_PASSPHRASE" | gpg --batch --yes --import ./private-key.asc
+        - echo "==========================Cloning from Github==============================="
+        - mkdir ~/ATS
+        - ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+        - git clone git@github.com:APoniatowski/usercp.git ~/ATS
+        - cd ~/ATS
+        - echo "==========================Cleanup==========================================="
+        - rm $CI_PROJECT_DIR/*.yml
+        - rm $CI_PROJECT_DIR/.gitlab-ci.yml
+        - rm $CI_PROJECT_DIR/Dockerfile
+        - rm $CI_PROJECT_DIR/ops-script.sh
+        - rm $CI_PROJECT_DIR/nanovm.json
+        - rm -rf $CI_PROJECT_DIR/.git
+        - rm -rf $CI_PROJECT_DIR/.vscode
+        - rm -rf $CI_PROJECT_DIR/.devcontainer
+        - rm -rf $CI_PROJECT_DIR/.idea
+        - rm $CI_PROJECT_DIR/.dockerignore
+        - rm $CI_PROJECT_DIR/.gitignore
+        - echo "==========================Pushing to Github================================"
+        - cp -r $CI_PROJECT_DIR/. .
+        - git config --global user.email "bot@poniatowski.dev"
+        - git config --global user.name "poniatowski-bot"
+        - git add .
+        - git commit -m "Automated commit by GitLab CI/CD - Personal Bot"
+        - git push

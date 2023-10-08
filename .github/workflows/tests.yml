@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: MIT
+name: Run Tests
+author: 'Adam Poniatowski'
+description: |
+  Unit tests... I'll think of a better description later.
+on: [push]
+jobs:
+  build:
+    runs-on: docker
+   
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+      #    - name: Set up Python
+        #      uses: actions/setup-python@v2
+        #      with:
+          #        python-version: 3.11
+
+    - name: Run tests
+      run: python -m unittest drol_test.py
