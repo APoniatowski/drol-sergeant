@@ -1,18 +1,24 @@
 # SPDX-License-Identifier: MIT
 name: Run Tests
-on: [push]
+
+on:
+  push:
+    branches:
+      - main
+
 jobs:
   build:
-    runs-on: docker
-   
+    runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v2
 
-      #    - name: Set up Python
-        #      uses: actions/setup-python@v2
-        #      with:
-          #        python-version: 3.11
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
 
     - name: Run tests
-      run: python -m unittest drol_test.py
+      run: python -m unittest drol_test.py 
+
