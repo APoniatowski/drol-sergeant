@@ -11,12 +11,13 @@ class TestDockerComposeTool(unittest.TestCase):
         service_dir = '/path/to/service'
         command = 'docker-compose up -d'
 
-        result, output = drol.run_docker_compose(
-            service_dir, command)
+        # Pass the mock_run argument to the function
+        result, output = drol.run_docker_compose(service_dir, command)
 
         self.assertEqual(result, "[{}] - Started.".format(service_dir))
         self.assertEqual(output, "Docker Compose started successfully")
 
+    @patch('subprocess.run')
     def test_start_services(self, mock_run):
         # Prepare a list of services and an insult
         services = ['service1', 'service2', 'service3']
@@ -30,7 +31,8 @@ class TestDockerComposeTool(unittest.TestCase):
         ]
 
         # Call the start_services function
-        status_messages = drol.start_services(services, insult)
+        with patch('subprocess.run', mock_run):
+            status_messages = drol.start_services(services, insult)
 
         # Check if the function returns the expected status messages
         expected_messages = [
@@ -44,6 +46,7 @@ class TestDockerComposeTool(unittest.TestCase):
         ]
         self.assertEqual(status_messages, expected_messages)
 
+    @patch('subprocess.run')
     def test_check_status(self, mock_run):
         # Prepare a list of services and an insult
         services = ['service1', 'service2', 'service3']
@@ -57,7 +60,8 @@ class TestDockerComposeTool(unittest.TestCase):
         ]
 
         # Call the check_status function
-        status_messages = drol.check_status(services, insult)
+        with patch('subprocess.run', mock_run):
+            status_messages = drol.check_status(services, insult)
 
         # Check if the function returns the expected status messages
         expected_messages = [
